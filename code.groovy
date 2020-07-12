@@ -13,26 +13,17 @@ job("K8s Deployment")
 {
 description ("Kubernetes deployment")
 steps{
-shell('''sudo /usr/local/bin/kubectl version 
-if sudo ls /task3 | grep html
+shell('''
+if sudo /usr/local/bin/kubectl get deployments | grep webtest
 then
-  if sudo /usr/local/bin/kubectl get pvc | grep html
-  then
-  echo "pvc for html already created"
-  else
-  sudo /usr/local/bin/kubectl create -f /task3/html-pvc.yaml 
-  fi
-  if sudo /usr/local/bin/kubectl get deploy | grep html-webserver
-  then
-    echo "already running"
-  else
-    sudo /usr/local/bin/kubectl create -f /task3/html-deply.yaml 
-  fi
+sudo /usr/local/bin/kubectl rollout restart deployment/webtest
+sudo /usr/local/bin/kubectl rollout status deployment/webtest 
 else
-echo "no html code from developer to host"
+sudo /usr/local/bin/kubectl apply -f /task3/deployment.yml
+sudo /usr/local/bin/kubectl apply -f /task3/pvc.yml
+sudo /usr/local/bin/kubectl apply -f /task3/expose.yml
 fi
-htmlpod=$(/usr/local/bin/sudo kubectl get pod -l app=html-webserver -o jsonpath="{.items[0].metadata.name}" )
-sudo /usr/local/bin/kubectl cp /task3/*.html   $htmlpod:/usr/local/apache2/htdocs ''')
+''')
 }
  triggers {
         upstream('Git Pull', 'SUCCESS')
@@ -42,7 +33,7 @@ job("Monitoring")
 {
 description ("monitoring the website")
 steps{
-shell(''' status=$(curl -o /dev/null -sw "%{http_code}" http://192.168.99.102:30001/index.html)
+shell(''' status=$(curl -o /dev/null -sw "%{http_code}" http://192.168.99.102:31000)
 if [[$status == 200 ]]
 then
 echo "running"
