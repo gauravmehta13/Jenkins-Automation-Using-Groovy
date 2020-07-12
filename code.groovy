@@ -42,12 +42,12 @@ job("Monitoring")
 {
 description ("monitoring the website")
 steps{
-shell(''' status=$(curl -o /dev/null -sw "%{http_code}" http://192.168.99.105:30001/index.html)
+shell(''' status=$(curl -o /dev/null -sw "%{http_code}" http://192.168.99.102:30001/index.html)
 if [[$status == 200 ]]
 then
 echo "running"
 else
-curl -u admin:1234 http://192.168.99.106:8080/job/kub4/build?token=mail
+curl -u admin:1234 http://192.168.99.104:8080/job/kub4/build?token=mail
 fi ''')
 }
 triggers {
@@ -60,7 +60,7 @@ description ("Mailing the developer")
  authenticationToken('mail')
 
  publishers {
-        mailer('vaishnaviaggarwal1401@gmail..com', true, true)
+        mailer('269mehta@gmail.com', true, true)
     }
 triggers {
         upstream('Monitoring', 'SUCCESS')
